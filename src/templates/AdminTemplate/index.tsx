@@ -22,7 +22,7 @@ const Admintemplate = (props: Props) => {
             <NavLink to='/' className='w-full py-[15px] pl-[27px] xl:pl-[10px]'>
               <li className='flex items-center gap-x-[15px] text-lg 3xl:text-sm 2xl:text-xs' ><HomeIcon className='w-[20px]'/> Trang chủ</li>
             </NavLink>
-            <NavLink to='/asd' className='w-full py-[15px] pl-[27px] xl:pl-[10px] '>
+            <NavLink to='/manager-ticket' className='w-full py-[15px] pl-[27px] xl:pl-[10px] '>
               <li className='flex items-center gap-x-[15px] text-lg 3xl:text-sm 2xl:text-xs'><TicketIcon className='w-[20px]'/> Quản lý vé</li>
             </NavLink>
             <NavLink to='/asd' className='w-full py-[15px] pl-[27px] xl:pl-[10px] '>
@@ -62,7 +62,7 @@ const Admintemplate = (props: Props) => {
             <NavLink to='/' className='w-full py-[15px] pl-[27px] xl:pl-[10px]'>
               <li className='flex items-center gap-x-[15px] text-lg 3xl:text-sm 2xl:text-xs' ><HomeIcon className='w-[20px]'/> Trang chủ</li>
             </NavLink>
-            <NavLink to='/asd' className='w-full py-[15px] pl-[27px] xl:pl-[10px] '>
+            <NavLink to='/manager-ticket' className='w-full py-[15px] pl-[27px] xl:pl-[10px] '>
               <li className='flex items-center gap-x-[15px] text-lg 3xl:text-sm 2xl:text-xs'><TicketIcon className='w-[20px]'/> Quản lý vé</li>
             </NavLink>
             <NavLink to='/asd' className='w-full py-[15px] pl-[27px] xl:pl-[10px] '>
@@ -78,7 +78,7 @@ const Admintemplate = (props: Props) => {
            </div>
           </ul>
         </div>
-          <div className="main__content p-6 pb-[30px] bg-white rounded-3xl h-[87vh] min-w-full">
+          <div className="main__content p-6 pb-[30px] bg-white rounded-3xl min-h-[87vh] min-w-full">
             {children}
           </div>
         </div>

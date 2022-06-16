@@ -12,6 +12,15 @@
     }
 }
 
+@layer components {
+  .btn {
+    @apply text-lg px-6 py-3 text-yellow/1 inline-block font-bold border border-yellow/1 rounded-lg;
+    &.fill{
+      @apply bg-yellow/1 text-white;
+    }
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -99,4 +108,28 @@ h6 {
 }
 .z-9999{
   z-index: 9999;
+}
+// Custom table antd
+.ant-table-container table {
+  .ant-table-thead > tr > th{
+    background: #F1F4F8 !important;
+  }
+  .ant-table-tbody > tr:nth-child(even){
+    background: #F7F8FB !important;
+  }
+}
+.ant-pagination-item-active{
+  border-color: #FF993C !important;
+  a{
+    color: #FF993C !important;
+  }
+}
+.ant-pagination-item:hover{
+  border-color: #FF993C !important;
+  a{
+    color: #FF993C !important;
+  }
+}
+.ant-pagination-item a:hover{
+  background: white !important;
 }

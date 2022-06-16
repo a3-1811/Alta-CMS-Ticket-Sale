@@ -14,6 +14,7 @@ module.exports = {
         'primary-400': '#FF9138',
         'grey/2': '#F1F4F8',
         'grey/3': '#F7F8FB',
+        'grey/4': '#A5A8B1',
         'grey/5': '#919DBA',
         'grey-background': '#EAF1F8',
         'promomote': '#03AC00',
