@@ -1,0 +1,17 @@
+.template{
+    ul{
+        .active{
+            background: #FFB800;
+            font-weight: 700;
+            color: #fff;
+            border-radius: 8px;
+        }
+        a:hover{
+            background: #FFB800;
+            font-weight: 700;
+            color: #fff;
+            border-radius: 8px;
+            transition: all 0.25s;
+        }
+    }
+}
