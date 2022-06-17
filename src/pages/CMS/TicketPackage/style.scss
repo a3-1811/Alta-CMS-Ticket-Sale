@@ -1,0 +1,10 @@
+.manager-ticket{
+    .ant-table-container table {
+        .ant-table-tbody > tr > td{
+            &:last-child(2),
+            &:last-child(3){
+                text-align: right !important;
+            }
+        }
+      }
+}

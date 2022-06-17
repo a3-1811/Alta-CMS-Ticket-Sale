@@ -1,8 +1,9 @@
 import React from "react";
 import "./App.scss";
-import { privatesRoute, publicRoute } from "./routers/router";
+import { privatesRoute, publicRoute, customRoute } from "./routers/router";
 import PrivateRoute from "./routers/PrivateRoute";
 import { Route, Routes } from "react-router-dom";
+import CustomTemplate from "./templates/CustomTemplate";
 
 function App() {
   return (
@@ -18,6 +19,20 @@ function App() {
                   <PrivateRoute>
                     <Page />
                   </PrivateRoute>
+                }
+              />
+            );
+          })}
+          {customRoute?.map((route, index) => {
+            let Page = route.component;
+            return (
+              <Route
+                key={index}
+                path={route.path}
+                element={
+                  <CustomTemplate>
+                    <Page />
+                  </CustomTemplate>
                 }
               />
             );

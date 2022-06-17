@@ -6,95 +6,10 @@ import React, { useEffect, useRef, useState } from "react";
 import FilterTicket from "./Filter";
 import './style.scss';
 import { DotsVerticalIcon } from "@heroicons/react/outline";
+import ChangeDateExpire from "./ChangeDateExpire";
 type Props = {};
 
-const columns = [
-  {
-    title: "STT",
-    dataIndex: "stt",
-    width: "5%",
-  },
-  {
-    title: "Booking code",
-    dataIndex: "codeBooking",
-    width: "7%",
-  },
-  {
-    title: "Số vé",
-    dataIndex: "numberTicket",
-    width: "7%",
-  },
-  {
-    title: "Tên sự kiện",
-    dataIndex: "nameEvent",
-    width: "15%",
-    render: (nameEvent: string) => {
-      return <p className="limit-1">{nameEvent}</p>;
-    },
-  },
-  {
-    title: "Tình trạng sử dụng",
-    dataIndex: "status",
-    width: "10%",
-    render: (status: any) =>
-      status === "used" ? (
-        <span className="inline-block">
-          <span className="flex items-center  gap-x-2 px-[7px] py-2 rounded bg-grey-background text-grey/5 border border-grey/5">
-            <span className="shrink-0 block h-2 w-2 bg-grey/5 rounded-full"></span>
-            Đã sử dụng
-          </span>
-        </span>
-      ) : status === "pending" ? (
-        <span className="inline-block">
-          <span className="flex items-center gap-x-2 px-[7px] py-2 rounded bg-grey-background text-promomote border border-promomote">
-            <span className="shrink-0 block h-2 w-2 bg-promomote rounded-full"></span>
-            Chưa sử dụng
-          </span>
-        </span>
-      ) : (
-        <span className="inline-block">
-          <span className="flex items-center gap-x-2 px-[7px] py-2 rounded bg-red-background text-primary-red border border-primary-red">
-            <span className="shrink-0 block h-2 w-2 bg-primary-red rounded-full"></span>
-            Hết hạn
-          </span>
-        </span>
-      ),
-  },
-  {
-    title: "Ngày sử dụng",
-    dataIndex: "dateUsed",
-    width: "10%",
-    render: (dateUsed:any)=>{
-      return <span>{dateUsed.format('DD/MM/YYYY')}</span>
-    },
-    align: 'right' as AlignType
-  },
-  {
-    title: "Ngày xuất vé",
-    dataIndex: "dateRelease",
-    width: "10%",
-    render: (dateRelease:any)=>{
-      return <span>{dateRelease.format('DD/MM/YYYY')}</span>
-    },
-    align: 'right' as AlignType
-  },
-  {
-    title: "Cổng check - in",
-    dataIndex: "gateCheckin",
-    width: "10%",
-    render: (number:any)=>{
-      return <span>Cổng {number}</span>
-    }
-  },
-  {
-    title: "",
-    dataIndex: "action",
-    width: "5%",
-    render: (number:any)=>{
-      return <DotsVerticalIcon className="w-[18px] h-[36px] cursor-pointer"/>
-    }
-  }
-];
+
 
 const ManagerTicket = (props: Props) => {
   const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -110,6 +25,98 @@ const ManagerTicket = (props: Props) => {
   const [tickets, setTickets] = useState([])
   const [ticketsFilter, setTicketsFilter] = useState([])
   const [isOpen , setIsOpen ] = useState<boolean>(false)
+  const [isOpenChangeExpire , setIsOpenChangeExpire ] = useState<boolean>(false)
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "stt",
+      width: "5%",
+    },
+    {
+      title: "Booking code",
+      dataIndex: "codeBooking",
+      width: "7%",
+    },
+    {
+      title: "Số vé",
+      dataIndex: "numberTicket",
+      width: "7%",
+    },
+    {
+      title: "Tên sự kiện",
+      dataIndex: "nameEvent",
+      width: "15%",
+      render: (nameEvent: string) => {
+        return <p className="limit-1">{nameEvent}</p>;
+      },
+    },
+    {
+      title: "Tình trạng sử dụng",
+      dataIndex: "status",
+      width: "10%",
+      render: (status: any) =>
+        status === "used" ? (
+          <span className="inline-block">
+            <span className="flex items-center  gap-x-2 px-[7px] py-2 rounded bg-grey-background text-grey/5 border border-grey/5">
+              <span className="shrink-0 block h-2 w-2 bg-grey/5 rounded-full"></span>
+              Đã sử dụng
+            </span>
+          </span>
+        ) : status === "pending" ? (
+          <span className="inline-block">
+            <span className="flex items-center gap-x-2 px-[7px] py-2 rounded bg-grey-background text-promomote border border-promomote">
+              <span className="shrink-0 block h-2 w-2 bg-promomote rounded-full"></span>
+              Chưa sử dụng
+            </span>
+          </span>
+        ) : (
+          <span className="inline-block">
+            <span className="flex items-center gap-x-2 px-[7px] py-2 rounded bg-red-background text-primary-red border border-primary-red">
+              <span className="shrink-0 block h-2 w-2 bg-primary-red rounded-full"></span>
+              Hết hạn
+            </span>
+          </span>
+        ),
+    },
+    {
+      title: "Ngày sử dụng",
+      dataIndex: "dateUsed",
+      width: "10%",
+      render: (dateUsed:any)=>{
+        return <span>{dateUsed.format('DD/MM/YYYY')}</span>
+      },
+      align: 'right' as AlignType
+    },
+    {
+      title: "Ngày xuất vé",
+      dataIndex: "dateRelease",
+      width: "10%",
+      render: (dateRelease:any)=>{
+        return <span>{dateRelease.format('DD/MM/YYYY')}</span>
+      },
+      align: 'right' as AlignType
+    },
+    {
+      title: "Cổng check - in",
+      dataIndex: "gateCheckin",
+      width: "10%",
+      render: (number:any)=>{
+        return <span>Cổng {number}</span>
+      }
+    },
+    {
+      title: "",
+      dataIndex: "action",
+      width: "5%",
+      render: (number:any,record:any)=>{
+        if(record.status === 'pending'){
+          return <DotsVerticalIcon className="w-[18px] h-[36px] cursor-pointer" onClick={()=>{handlePopupExpire()}}/>
+        }else{
+          return ''
+        }
+      }
+    }
+  ];
   useEffect(() => {
     //Data demo
     const data = [];
@@ -135,7 +142,7 @@ const ManagerTicket = (props: Props) => {
   const handlePanigationChange = (current: any) => {
     setTable({ ...table, pagination: { ...table.pagination, current } });
   };
-  const handlePopup = (status: boolean):void=>{
+  const handlePopupStatus = (status: boolean):void=>{
     setIsOpen(status)
   };
   const handleReceiveFilter = ( filterResult : any):void=>{
@@ -145,7 +152,7 @@ const ManagerTicket = (props: Props) => {
 
     let result  = tickets.filter((ticket : any)=>{
       let isValidDate = ticket.dateUsed.isBefore(time.endDay) && ticket.dateUsed.isAfter(time.startDay)
-      return ticket.status.includes(tinhTrang) && isValidDate
+      return ticket.status.includes(tinhTrang) && isValidDate && ticket.numberTicket.includes(key)
     })
 
     if(congCheckin.length > 0){
@@ -176,6 +183,12 @@ const ManagerTicket = (props: Props) => {
     setTable({...table,data : temp as any})
     clearInterval(searchRef.current as any)
   }, 700);
+  }
+  const handlePopupExpire = ()=>{
+    setIsOpenChangeExpire(true)
+  }
+  const handleStatusExpire= (status:boolean)=>{
+    setIsOpenChangeExpire(status)
   }
   return (
     <>
@@ -230,7 +243,8 @@ const ManagerTicket = (props: Props) => {
         loading={table.loading}
       />
     </div>
-    <FilterTicket isOpen={isOpen} handlePopup={handlePopup} handleReceiveFilter={handleReceiveFilter} />
+    <FilterTicket isOpen={isOpen} handlePopup={handlePopupStatus} handleReceiveFilter={handleReceiveFilter} />
+    <ChangeDateExpire isOpen={isOpenChangeExpire} handlePopup={handleStatusExpire}/>
     </>
   );
 };

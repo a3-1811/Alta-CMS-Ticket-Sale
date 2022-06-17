@@ -4,11 +4,10 @@ import React, { useEffect, useRef, useState } from "react";
 import "./style.scss";
 type Props = {
   handlePopup: Function;
-  handleReceiveFilter: Function;
   isOpen: boolean;
 };
 
-const FilterTicket = ({ handlePopup, handleReceiveFilter, isOpen }: Props) => {
+const AddPackage = ({ handlePopup, isOpen }: Props) => {
   const [time, setTime] = useState({
     startDay: moment(),
     endDay: moment().add(7, "days"),
@@ -37,7 +36,6 @@ const FilterTicket = ({ handlePopup, handleReceiveFilter, isOpen }: Props) => {
     return current < time.startDay;
   }
   const onFinish = (values: any) => {
-    handleReceiveFilter({...values,time})
     handlePopup(false)
   };
   const checkBoxOnchange = (values: any[])=>{
@@ -158,4 +156,4 @@ const FilterTicket = ({ handlePopup, handleReceiveFilter, isOpen }: Props) => {
   );
 };
 
-export default FilterTicket;
+export default AddPackage;

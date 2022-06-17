@@ -1,0 +1,13 @@
+.checking-ticket{
+    .ant-table-container table {
+        .ant-table-tbody > tr > td{
+            &:last-child(2),
+            &:last-child(3){
+                text-align: right !important;
+            }
+        }
+      }
+      .ant-form label{
+        font-size: 16px;
+      }
+}

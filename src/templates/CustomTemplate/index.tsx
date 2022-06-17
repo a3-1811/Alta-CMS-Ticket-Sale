@@ -7,7 +7,7 @@ type Props = {
     children : JSX.Element | JSX.Element[]
 }
 
-const Admintemplate = (props: Props) => {
+const CustomTemplate = (props: Props) => {
   const {children} = props
   const [hambuger, setHambuger] = useState<Boolean>(false)
   const handleVisible = ()=>{
@@ -79,12 +79,10 @@ const Admintemplate = (props: Props) => {
            </div>
           </ul>
         </div>
-          <div className="main__content p-6 pb-[30px] bg-white rounded-3xl min-h-[87vh] min-w-full">
-            {children}
-          </div>
+        {children}
         </div>
       </div>
     </div>
   )
 }
-export default Admintemplate;
+export default CustomTemplate;
