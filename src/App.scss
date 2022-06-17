@@ -113,10 +113,21 @@ h6 {
 .ant-table-container table {
   .ant-table-thead > tr > th{
     background: #F1F4F8 !important;
+    font-weight: bold !important;
+    &:first-child{
+      text-align: center;
+    }
   }
+  
   .ant-table-tbody > tr:nth-child(even){
     background: #F7F8FB !important;
   }
+  .ant-table-tbody > tr > td{
+    &:first-child{
+      text-align: center;
+    }
+  }
+
 }
 .ant-pagination-item-active{
   border-color: #FF993C !important;
@@ -132,4 +143,12 @@ h6 {
 }
 .ant-pagination-item a:hover{
   background: white !important;
+}
+// Datedpicker
+.ant-picker-suffix{
+  color: #FF993C;
+  svg{
+    height: 20px;
+    width: 20px;
+  }
 }

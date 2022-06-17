@@ -1,0 +1,16 @@
+.filter-ticket{
+    .ant-radio-wrapper{
+        span{
+            &:nth-child(2){
+                font-size: 16px !important;
+            }
+        }
+    }
+    .ant-checkbox-wrapper{
+        span{
+            &:nth-child(2){
+                font-size: 16px !important;
+            }
+        }
+    }
+}

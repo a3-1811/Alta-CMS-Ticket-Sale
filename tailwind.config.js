@@ -19,7 +19,7 @@ module.exports = {
         'grey-background': '#EAF1F8',
         'promomote': '#03AC00',
         'primary-red': '#FD5959',
-        'read-background': '#F8EBE8',
+        'red-background': '#F8EBE8',
         'dashboard-background': '#F9F6F4',
         'chart-linear': 'linear-gradient(180deg, rgba(250, 160, 95, 0.26) 0%, rgba(255, 255, 255, 0) 141.68%)',
         'chart-donut-1': '#FF8A48',

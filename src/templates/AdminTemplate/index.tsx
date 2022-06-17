@@ -15,17 +15,17 @@ const Admintemplate = (props: Props) => {
   }
   return (
     <div className='template container min-h-screen mx-auto pt-[17px] pb-8 px-8 bg-dashboard-background rounded-3xl'>
-      <div className="wrapper flex">
-        <div className="nav w-[13.5%] bg-red lg:w-1/5 md:hidden">
-          <Link to='/'><img src="/images/logo.svg" alt="" /></Link>
-          <ul  className='mt-[59px] flex flex-col gap-y-2 '>
-            <NavLink to='/' className='w-full py-[15px] pl-[27px] xl:pl-[10px]'>
+      <div className="wrapper flex relative">
+        <div className="flex flex-col nav w-[13.5%] h-full bg-red lg:w-1/5 md:hidden ">
+          <Link to='/'><img src="/images/logo.svg" alt="logo" /></Link>
+          <ul  className='mt-[59px] flex flex-col gap-y-2 flex-1'>
+            <NavLink to='/' className='block w-full py-[15px] pl-[27px] xl:pl-[10px]'>
               <li className='flex items-center gap-x-[15px] text-lg 3xl:text-sm 2xl:text-xs' ><HomeIcon className='w-[20px]'/> Trang chủ</li>
             </NavLink>
-            <NavLink to='/manager-ticket' className='w-full py-[15px] pl-[27px] xl:pl-[10px] '>
+            <NavLink to='/manager-ticket' className='block w-full py-[15px] pl-[27px] xl:pl-[10px] '>
               <li className='flex items-center gap-x-[15px] text-lg 3xl:text-sm 2xl:text-xs'><TicketIcon className='w-[20px]'/> Quản lý vé</li>
             </NavLink>
-            <NavLink to='/asd' className='w-full py-[15px] pl-[27px] xl:pl-[10px] '>
+            <NavLink to='/asd' className='block w-full py-[15px] pl-[27px] xl:pl-[10px] '>
               <li className='flex items-center gap-x-[15px] text-lg 3xl:text-sm 2xl:text-xs'><i className="fas fa-file-invoice"></i>Đối soát vé</li>
             </NavLink>
            <div className='w-full flex items-center flex-col'>
@@ -37,6 +37,7 @@ const Admintemplate = (props: Props) => {
               </div>
            </div>
           </ul>
+          <span className='absolute bottom-0 left-0 text-sm mt-auto'>Copyright &copy; 2020 Alta Software </span>
         </div>
         <div className="content w-[84.4%] bg-blue ml-9 lg:w-4/5 md:w-full md:ml-0 relative">
           {/* Toolbar */}
