@@ -5,6 +5,7 @@ import moment from "moment-timezone";
 import React, { useEffect, useRef, useState } from "react";
 import './style.scss';
 import AddPackage from "./AddPackage";
+import UpdatePackage from "./UpdatePackage";
 type Props = {};
 
 const TicketPackage = (props: Props) => {
@@ -104,7 +105,7 @@ const TicketPackage = (props: Props) => {
       dataIndex: "action",
       width: "10%",
       render: (number:any,record:any)=>{
-          return <span className="flex text-yellow/1 items-center gap-x-1 cursor-pointer"><PencilAltIcon className="w-[18px] h-[36px] cursor-pointer"/> Cập nhật</span>
+          return <span onClick={()=>{handlePopupUpdate()}} className="flex text-yellow/1 items-center gap-x-1 cursor-pointer"><PencilAltIcon className="w-[18px] h-[36px] cursor-pointer"/> Cập nhật</span>
       }
     }
   ];
@@ -153,11 +154,19 @@ const TicketPackage = (props: Props) => {
     clearInterval(searchRef.current as any)
   }, 700);
   }
+  // Add Popup
   const handlePopupAdd = ()=>{
     setIsOpenAdd(true)
   }
   const handleStatusAdd = (status: boolean)=>{
     setIsOpenAdd(status)
+  }
+  // Update Popup
+  const handlePopupUpdate = ()=>{
+    setIsOpenUpdate(true)
+  }
+  const handleStatusUpdate = (status: boolean)=>{
+    setIsOpenUpdate(status)
   }
   return (
     <>
@@ -213,6 +222,7 @@ const TicketPackage = (props: Props) => {
       />
     </div>
     <AddPackage isOpen={isOpenAdd} handlePopup={handleStatusAdd}/>
+    <UpdatePackage isOpen={isOpenUpdate} handlePopup={handleStatusUpdate}/>
     </>
   );
 };

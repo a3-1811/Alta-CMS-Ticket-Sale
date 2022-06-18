@@ -1,5 +1,5 @@
 import {ChevronDownIcon } from "@heroicons/react/outline";
-import { Checkbox, DatePicker, Form ,Button, Space, Modal, Input, TimePicker, Select} from "antd";
+import { Checkbox, DatePicker, Form ,Button, Space, Modal, Input, TimePicker, Select, Row, Col} from "antd";
 import moment from "moment-timezone";
 import React, { useEffect, useState } from "react";
 import "./style.scss";
@@ -8,7 +8,7 @@ type Props = {
   isOpen: boolean;
 };
 const { Option } = Select;
-const AddPackage = ({ handlePopup, isOpen }: Props) => {
+const UpdatePackage = ({ handlePopup, isOpen }: Props) => {
   const [time, setTime] = useState({
     startDay: moment(),
     endDay: moment().add(7, "days"),
@@ -78,10 +78,25 @@ const AddPackage = ({ handlePopup, isOpen }: Props) => {
         footer={null}
         onCancel={()=>{handlePopup(false)}}
       >
-      <h2 className="text-center font-bold text-2xl mb-[27px]">Thêm gói vé</h2>
+      <h2 className="text-center font-bold text-2xl mb-[27px]">Cập nhật thông tin gói vé</h2>
       <Form name="nest-messages" onFinish={onFinish} form={form}>
-        <h2 className="flex items-center font-semibold text-base mb-[9px]">Tên gói vé <span className="ml-1 text-primary-red">*</span></h2>
-        <Form.Item name="namePackage" className="mb-[20px]"
+        <Row className="gap-x-[82px]">
+          <Col span={8}>
+            <h2 className="flex items-center font-semibold text-base mb-[9px]">Mã gói vé<span className="ml-1 text-primary-red">*</span></h2>
+            <Form.Item name="codePackage" className="mb-[20px]"
+        rules={[
+          {
+            required: true,
+            message : 'Vui lòng nhập mã gói'
+          }
+        ]}
+        >
+          <Input className=" w-full py-[10px] pr-4 text-base rounded-lg focus:border-yellow/1 focus:outline-none" placeholder="Nhập mã gói vé"/>
+        </Form.Item>
+          </Col>
+          <Col span={13}>
+            <h2 className="flex items-center font-semibold text-base mb-[9px]">Tên gói vé</h2>
+            <Form.Item name="namePackage" className="mb-[20px]"
         rules={[
           {
             required: true,
@@ -89,8 +104,11 @@ const AddPackage = ({ handlePopup, isOpen }: Props) => {
           }
         ]}
         >
-          <Input className="max-w-[367px] w-full py-[10px] pr-4 text-base rounded-lg focus:border-yellow/1 focus:outline-none" placeholder="Nhập tên gói vé"/>
+          <Input className=" w-full py-[10px] pr-4 text-base rounded-lg focus:border-yellow/1 focus:outline-none" placeholder="Nhập tên gói vé"/>
         </Form.Item>
+          </Col>
+        </Row>
+        
         {/* Date picker, Time picker */}
         <div className="w-full flex items-center mb-6">
           <div className="flex flex-col  gap-y-[5px] w-1/2 text-base font-semibold">
@@ -180,4 +198,4 @@ const AddPackage = ({ handlePopup, isOpen }: Props) => {
   );
 };
 
-export default AddPackage;
+export default UpdatePackage;
