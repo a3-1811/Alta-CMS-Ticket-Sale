@@ -1,30 +1,85 @@
 import { Button, Col, DatePicker, Form, Modal, Row, Space } from 'antd';
 import moment from 'moment-timezone';
 import React, { useEffect, useRef, useState } from 'react'
+import ITicket from "../../../../db/types/ticket.type";
+import PackageServices from "../../../../db/services/package.services"
+import TicketServices from "../../../../db/services/ticket.services"
+import IPackage from "../../../../db/types/package.type";
+import Swal from 'sweetalert2';
 
 type Props = {
     handlePopup: Function;
     isOpen: boolean;
-    id?: string;
+    ticket ?: ITicket;
+    reset : Function;
 }
 
-const ChangeDateExpire = ({ handlePopup, isOpen, id }: Props) => {
+type Info = {
+  codeBooking ?: string,
+  nameEvent ?: string,
+  dateRelease?: Date,
+  namePackage ?: string,
+  dateExpired ?: Date,
+  id?:string
+}
+
+const ChangeDateExpire = ({ handlePopup, isOpen, ticket,reset }: Props) => {
     const [time, setTime] = useState(moment());
     const [form] = Form.useForm();
+    const [packageTickets, setPackageTickets] = useState<IPackage[]>()
+    const [ticketInfo, setTicketInfo] = useState<Info>()
+
     useEffect(() => {
-        // Display info
-        // Fecth Api form firebase
-    }, [id]);
+        if(ticket && packageTickets ){
+          let {codeBooking,dateRelease,nameEvent,id,dateExpire} = ticket
+        let index = packageTickets.findIndex((item)=>item.codePackage === ticket.codePackage)
+        if(index !== -1){
+          let release = dateRelease as any
+          let expire = dateExpire as any
+          setTicketInfo({
+            codeBooking,
+            nameEvent,
+            dateRelease : release.toDate(),
+            dateExpired : dateExpire,
+            namePackage: packageTickets[index].namePackage,
+            id
+          })
+          setTime(moment(expire.toDate()))
+        }
+        }
+    }, [ticket,packageTickets]);
+
+    useEffect(()=>{
+      (async()=>{
+        let data = await PackageServices.getPackageTickets()
+        setPackageTickets(data)
+      })()
+    },[])
   
 
     const handleExpireDateChange = (date: any, dateString: String) => {
       setTime(date);
     };
     function disabledDate(current: any) {
-    //   return current < time.startDay;
+      let temp = ticketInfo?.dateRelease as any
+      return current < moment(temp);
     }
-    const onFinish = (values: any) => {
-      handlePopup(false)
+    const onFinish = async (values: any) => {
+     if(ticket){
+      await TicketServices.updateTicket({
+        ...ticket,
+        dateExpire : time.toDate(),
+      })
+      Swal.fire({
+        title: 'Thành công!',
+        text: 'Cập nhật ngày sử dụng vé thành công!',
+        icon: 'success',
+        confirmButtonText: 'Ok'
+      }).then(()=>{
+          handlePopup(false)
+          reset()
+      })
+     }
     };
     return (
         <Modal
@@ -42,7 +97,7 @@ const ChangeDateExpire = ({ handlePopup, isOpen, id }: Props) => {
                     Số vé
                 </Col>
                 <Col span={16}>
-                    PKG20210502
+                    {ticketInfo?.codeBooking}
                 </Col>
             </Row>
             <Row  className='mb-[20px] text-base'>
@@ -50,7 +105,7 @@ const ChangeDateExpire = ({ handlePopup, isOpen, id }: Props) => {
                     Loại vé
                 </Col>
                 <Col span={16}>
-                    Vé cổng - Gói sự kiện
+                  Vé cổng - {ticketInfo?.namePackage}
                 </Col>
             </Row>
             <Row  className='mb-[20px] text-base'>
@@ -58,7 +113,7 @@ const ChangeDateExpire = ({ handlePopup, isOpen, id }: Props) => {
                 Tên sự kiện
                 </Col>
                 <Col span={16}>
-                Hội trợ triển lãm hàng tiêu dùng 2022
+                  {ticketInfo?.nameEvent}
                 </Col>
             </Row>
             <Row  className='mb-[20px] text-base items-center'>
@@ -67,6 +122,7 @@ const ChangeDateExpire = ({ handlePopup, isOpen, id }: Props) => {
                 </Col>
                 <Col span={16}>
                 <DatePicker
+                disabledDate={disabledDate}
                 onChange={handleExpireDateChange}
                 className="rounded-lg w-[150px] h-11 text-primary-gray-400"
                 format={"DD/MM/YYYY"}

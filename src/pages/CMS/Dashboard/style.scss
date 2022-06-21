@@ -1,0 +1,15 @@
+.custom-date{
+    .ant-picker-panel-container .ant-picker-panel {
+        flex-direction: column-reverse !important;
+    }
+    .ant-picker-today-btn{
+        display: none !important;
+    }
+    .ant-picker-header{
+        margin-bottom: 50px !important;
+    }
+    .ant-picker-footer{
+        position: absolute;
+         top: 40px;
+    }
+}

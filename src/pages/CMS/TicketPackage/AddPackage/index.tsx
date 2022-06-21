@@ -2,22 +2,28 @@ import {ChevronDownIcon } from "@heroicons/react/outline";
 import { Checkbox, DatePicker, Form ,Button, Space, Modal, Input, TimePicker, Select} from "antd";
 import moment from "moment-timezone";
 import React, { useEffect, useState } from "react";
+import PackageTicketService from "../../../../db/services/package.services";
+import IPackageTicket from "../../../../db/types/package.type";
+import Swal from "sweetalert2";
 import "./style.scss";
 type Props = {
   handlePopup: Function;
   isOpen: boolean;
+  reset: Function;
 };
 const { Option } = Select;
-const AddPackage = ({ handlePopup, isOpen }: Props) => {
+const AddPackage = ({ handlePopup, isOpen,reset }: Props) => {
   const [time, setTime] = useState({
     startDay: moment(),
     endDay: moment().add(7, "days"),
   });
+  const [checkedCombo, setCheckedCombo] = useState(false)
   const [form] = Form.useForm();
 
   useEffect(() => {
     form.setFieldsValue({
-      tinhTrang : 'applying'
+      tinhTrang : 'applying',
+      isSingleTicket : true
     })
   }, [])
   
@@ -66,9 +72,49 @@ const AddPackage = ({ handlePopup, isOpen }: Props) => {
       disabledSeconds: (selectedHour: number, selectedMinute: number) => [],
     };
   }
-  const onFinish = (values: any) => {
-    handlePopup(false)
+  const onFinish = async(values: any) => {
+    let {comboTicket,isComboTicket,isSingleTicket,namePackage,singleTicket,tinhTrang} = values
+    let {price , amount } = comboTicket
+    let newPackage :IPackageTicket = {
+      codePackage : `ALT${moment().format('YYMMDDHHmmss')}`,
+      dateApply : time.startDay.toDate(),
+      dateExpire : time.endDay.toDate(),
+      namePackage,
+      singleTicketPrice : Number.parseInt(singleTicket),
+      status : tinhTrang,
+      comboTicketPrice: null
+    } 
+    if(isComboTicket){
+      newPackage.comboTicketPrice = {
+        amount : Number.parseInt(amount),
+        price : Number.parseInt(price)
+      }
+    }
+    
+    await PackageTicketService.addNewPackageTicket(newPackage)
+    Swal.fire({
+      title: 'Thành công!',
+      text: 'Thêm gói vé thành công!',
+      icon: 'success',
+      confirmButtonText: 'Ok'
+    }).then(()=>{
+      form.resetFields()
+      form.setFieldsValue({
+        tinhTrang : 'applying',
+        isSingleTicket : true
+      })
+      reset()
+     handlePopup(false)
+    })
   };
+
+  const handleChangeCombo = (value : any)=>{
+    setCheckedCombo(value.target.checked)
+  }
+
+  const handleCloseModal = ()=>{
+   handlePopup(false)
+  }
   return (
     <Modal
         centered
@@ -77,6 +123,7 @@ const AddPackage = ({ handlePopup, isOpen }: Props) => {
         closable={false}
         footer={null}
         onCancel={()=>{handlePopup(false)}}
+        getContainer={false}
       >
       <h2 className="text-center font-bold text-2xl mb-[27px]">Thêm gói vé</h2>
       <Form name="nest-messages" onFinish={onFinish} form={form}>
@@ -125,25 +172,63 @@ const AddPackage = ({ handlePopup, isOpen }: Props) => {
         </div>
         <h2 className="font-semibold text-base mb-[13px]">Giá vé áp dụng</h2>
         <div className="flex items-center without-margin-input gap-x-2 mb-[20px]">
-          <Form.Item name="isSingleTicket" valuePropName="checked">
+          <Form.Item name="isSingleTicket" valuePropName="checked" rules={[{
+            required: true,
+            transform: value => (value || undefined),
+            type: 'boolean',
+            message: 'Vui lòng chọn ô này!'
+          }]}>
             <Checkbox className="rounded-[5px]"/>
           </Form.Item>
           <span className="text-base">Vé lẻ (vnđ/vé) với giá</span>
-          <Form.Item name="singleTicket">
+          <Form.Item name="singleTicket"
+            rules={[
+              {
+                required: true,
+                message: 'Vui lòng điền vào ô này!'
+              },
+              {
+                pattern: new RegExp(/^[1-9]+[0]{3,}/gm),
+                message: 'Số không đúng định dạng!'
+              }
+            ]}
+          >
             <Input placeholder="Giá vé" className="rounded-lg bg-grey/2 outline-0 py-[10px] pl-3 max-w-[150px]"/>
           </Form.Item>
           <span className="text-base">/ vé</span>
         </div>
         <div className="flex items-center without-margin-input gap-x-2 mb-[24px]">
           <Form.Item name="isComboTicket" valuePropName="checked">
-            <Checkbox className="rounded-[5px]"/>
+            <Checkbox className="rounded-[5px]" onChange={handleChangeCombo}/>
           </Form.Item>
           <span className="text-base">Combo vé với giá</span>
-          <Form.Item name={['comboTicket','price']}>
+          <Form.Item name={['comboTicket','price']}
+            rules={[
+              {
+                required: checkedCombo,
+                message: 'Vui lòng điền vào ô này!'
+              },
+              {
+                pattern: new RegExp(/^[1-9]+[0]{3,}/gm),
+                message: 'Số không đúng định dạng!'
+              }
+            ]}
+          >
             <Input placeholder="Giá vé" className="rounded-lg bg-grey/2 outline-0 py-[10px] pl-3 max-w-[150px]"/>
           </Form.Item>
           <span className="text-base">/</span>
-          <Form.Item name={['comboTicket','amount']}>
+          <Form.Item name={['comboTicket','amount']}
+            rules={[
+              {
+                required: checkedCombo,
+                message: 'Vui lòng điền vào ô này!'
+              },
+              {
+                pattern: new RegExp(/^[1-9]{1,2}$/gm),
+                message: 'Số không đúng định dạng!'
+              }
+            ]}
+          >
             <Input placeholder="Số vé" className="rounded-lg bg-grey/2 outline-0 py-[10px] pl-3 max-w-[72px]"/>
           </Form.Item>
           <span className="text-base">vé</span>
@@ -155,7 +240,7 @@ const AddPackage = ({ handlePopup, isOpen }: Props) => {
                 Đang áp dụng
               </Option>
               <Option value='off' >
-                Off 
+                Tắt 
               </Option>
             </Select>
           </Form.Item>
@@ -164,6 +249,7 @@ const AddPackage = ({ handlePopup, isOpen }: Props) => {
         className="w-full items-center justify-center"
         >
            <Button
+           onClick={handleCloseModal}
         className=" mt-[20px] btn w-[160px] h-[50px] hover:border-yellow/1 hover:text-yellow/1 font-bold text-lg"
         >   
             Hủy

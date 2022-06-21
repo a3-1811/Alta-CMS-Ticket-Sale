@@ -4,6 +4,8 @@ import { AlignType } from 'rc-table/lib/interface';
 import moment from "moment-timezone";
 import React, { useEffect, useRef, useState } from "react";
 import './style.scss';
+import PackageTicketService from "../../../db/services/package.services";
+import IPackageTicket from "../../../db/types/package.type";
 import AddPackage from "./AddPackage";
 import UpdatePackage from "./UpdatePackage";
 type Props = {};
@@ -19,8 +21,10 @@ const TicketPackage = (props: Props) => {
     },
     loading: false,
   });
-  const [tickets, setTickets] = useState([])
+  const [tickets, setTickets] = useState<IPackageTicket[]>([])
   const [ticketsFilter, setTicketsFilter] = useState([])
+  const [packageTicket, setPackageTicket] = useState<IPackageTicket>()
+
   const [isOpenAdd , setIsOpenAdd ] = useState<boolean>(false)
   const [isOpenUpdate , setIsOpenUpdate ] = useState<boolean>(false)
   const columns = [
@@ -47,7 +51,7 @@ const TicketPackage = (props: Props) => {
       dataIndex: "dateApply",
       width: "10%",
       render: (dateApply:any)=>{
-        return <span>{dateApply.format('DD/MM/YYYY')}<br></br>{dateApply.format('HH:mm:ss')}</span>
+        return <span>{moment(dateApply.toDate()).format('DD/MM/YYYY')}<br></br>{moment(dateApply.toDate()).format('HH:mm:ss')}</span>
       },
       align: 'right' as AlignType
     },
@@ -56,7 +60,7 @@ const TicketPackage = (props: Props) => {
       dataIndex: "dateExpire",
       width: "10%",
       render: (dateExpire:any)=>{
-        return <span>{dateExpire.format('DD/MM/YYYY')}<br></br>{dateExpire.format('HH:mm:ss')}</span>
+        return <span>{moment(dateExpire.toDate()).format('DD/MM/YYYY')}<br></br>{moment(dateExpire.toDate()).format('HH:mm:ss')}</span>
       },
       align: 'right' as AlignType
     },
@@ -75,8 +79,13 @@ const TicketPackage = (props: Props) => {
       dataIndex: "comboTicketPrice",
       width: "10%",
       render: (comboTicketPrice:any)=>{
-        let price = comboTicketPrice.price.toLocaleString('vi-VN', {style : 'currency', currency : 'VND'})
-        return <span>{price.substring(0,price.length-2)} VNĐ/ {comboTicketPrice.amount} vé</span>
+        if(comboTicketPrice){
+          let price = comboTicketPrice.price.toLocaleString('vi-VN', {style : 'currency', currency : 'VND'})
+          return <span>{price.substring(0,price.length-2)} VNĐ/ {comboTicketPrice.amount} vé</span>
+        }
+        else{
+          return ''
+        }
       }
     },
     {
@@ -105,35 +114,24 @@ const TicketPackage = (props: Props) => {
       dataIndex: "action",
       width: "10%",
       render: (number:any,record:any)=>{
-          return <span onClick={()=>{handlePopupUpdate()}} className="flex text-yellow/1 items-center gap-x-1 cursor-pointer"><PencilAltIcon className="w-[18px] h-[36px] cursor-pointer"/> Cập nhật</span>
+          return <span onClick={()=>{handlePopupUpdate(record.id)}} className="flex text-yellow/1 items-center gap-x-1 cursor-pointer"><PencilAltIcon className="w-[18px] h-[36px] cursor-pointer"/> Cập nhật</span>
       }
     }
   ];
   useEffect(() => {
     //Data demo
-    const data = [];
-    for (let index = 0; index < 50; index++) {
-      let random = Math.floor(Math.random() * (10 - 1 + 1) + 1);
-      let temp = {
-        key: index,
-        stt: index,
-        codePackage: `ALT20210501`,
-        namePackage: "Gói gia đình",
-        status: random % 2 === 0 ? "applying" : "off",
-        dateApply: moment(),
-        dateExpire: moment().set("day", moment().get("day") + 1),
-        singleTicketPrice: random *10000,
-        comboTicketPrice: {
-          price : random *100000 / 2,
-          amount : 4
-        },
-
-      };
-      data.push(temp);
-    }
+   (async()=>{
+    let data = await PackageTicketService.getPackageTickets()
+    data = data.map((item,index)=>{
+      return {
+        ...item,key: item.id,
+        stt : index+1
+      }
+    })
     setTickets(data as any)
     setTicketsFilter(data as any)
     setTable({ ...table, data: data as any });
+   })()
   }, []);
   const handlePanigationChange = (current: any) => {
     setTable({ ...table, pagination: { ...table.pagination, current } });
@@ -147,7 +145,7 @@ const TicketPackage = (props: Props) => {
   }
   searchRef.current = setTimeout(() => {
    let temp = ticketsFilter.filter((item : any)=>{
-    return item.numberTicket.includes(value)
+    return item.codePackage.includes(value)
    }
    )
     setTable({...table,data : temp as any})
@@ -162,16 +160,35 @@ const TicketPackage = (props: Props) => {
     setIsOpenAdd(status)
   }
   // Update Popup
-  const handlePopupUpdate = ()=>{
-    setIsOpenUpdate(true)
+  const handlePopupUpdate = (id: string)=>{
+    let index = ticketsFilter.findIndex((item: any)=>{
+      return item.id === id
+    })
+    if(index !== -1){
+      setPackageTicket(ticketsFilter[index] as any)
+      setIsOpenUpdate(true)
+    }
   }
   const handleStatusUpdate = (status: boolean)=>{
     setIsOpenUpdate(status)
   }
+
+  const reset = async()=>{
+    let data = await PackageTicketService.getPackageTickets()
+    data = data.map((item,index)=>{
+      return {
+        ...item,key: item.id,
+        stt : index+1
+      }
+    })
+    setTickets(data as any)
+    setTicketsFilter(data as any)
+    setTable({ ...table, data: data as any });
+  }
   return (
     <>
     <div className="manager-ticket">
-      <h1 className="text-4xl font-bold mb-8">Danh sách vé</h1>
+      <h1 className="text-4xl font-bold mb-8">Danh sách gói vé</h1>
       {/* Controls */}
       <div className="flex items-center mb-8">
         <div className="relative w-[360px]">
@@ -221,8 +238,8 @@ const TicketPackage = (props: Props) => {
         loading={table.loading}
       />
     </div>
-    <AddPackage isOpen={isOpenAdd} handlePopup={handleStatusAdd}/>
-    <UpdatePackage isOpen={isOpenUpdate} handlePopup={handleStatusUpdate}/>
+    <AddPackage reset={reset} isOpen={isOpenAdd} handlePopup={handleStatusAdd}/>
+    {<UpdatePackage reset={reset} packageTicket={packageTicket} isOpen={isOpenUpdate} handlePopup={handleStatusUpdate}/>}
     </>
   );
 };

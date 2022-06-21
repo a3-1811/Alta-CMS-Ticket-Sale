@@ -3,6 +3,8 @@ import { Button, Col, DatePicker, Form, Radio, Row, Space, Table } from "antd";
 import { AlignType } from 'rc-table/lib/interface';
 import moment from "moment-timezone";
 import React, { useEffect, useRef, useState } from "react";
+import TicketServices from "../../../db/services/ticket.services";
+import ITicket from "../../../db/types/ticket.type";
 import './style.scss';
 type Props = {};
 
@@ -40,9 +42,12 @@ const CheckingTicket = (props: Props) => {
       dataIndex: "dateUsed",
       width: "10%",
       render: (dateUsed:any)=>{
-        return <span>{dateUsed.format('DD/MM/YYYY')}</span>
+        if(dateUsed){
+          return <span>{moment(dateUsed.toDate()).format('DD/MM/YYYY')}</span>
+        }
+        return <span>-</span>
       },
-      align: 'right' as AlignType
+      align: 'center' as AlignType
     },
     {
         title: "Tên loại vé",
@@ -66,39 +71,31 @@ const CheckingTicket = (props: Props) => {
       dataIndex: "action",
       width: "15%",
       render: (number:any,record:any)=>{
-        if(record.status === 'pending'){
-          return <span className="font-medium text-grey/4 italic text-sm">Chưa đối soát</span>
-        }else{
+        if(record.status === 'used'){
           return <span className="font-medium text-primary-red italic text-sm">Đã đối soát</span>
+        }else{
+          return <span className="font-medium text-grey/4 italic text-sm">Chưa đối soát</span>
         }
       },
       align: 'center' as AlignType
     }
   ];
   useEffect(() => {
-    //Data demo
-    const data = [];
-    for (let index = 0; index < 50; index++) {
-      let random = Math.floor(Math.random() * (2 - 0 + 1) + 0);
-      let temp = {
-        key: index,
-        stt: index,
-        codeBooking: `ALT20210501`,
-        numberTicket: "123456789034",
-        nameEvent: "Hội chợ triển lãm tiêu dùng 2022",
-        status: random === 0 ? "used" : random === 1 ? "pending" : "expired",
-        dateUsed: moment(),
-        dateRelease: moment().set("day", moment().get("day") - 1),
-        gateCheckin: `${random + 1}`,
-      };
-      data.push(temp);
-    }
-    setTickets(data as any)
-    setTicketsFilter(data as any)
-    setTable({ ...table, data: data as any });
-    form.setFieldsValue({
-        tinhTrang : 'all'
-    })
+    (async()=>{
+      let data = await TicketServices.getTickets()
+      data = data.map((item,index)=>{
+        return {
+          ...item,key :item.id,
+          stt:index + 1
+        }
+      })
+      setTickets(data as any)
+      setTicketsFilter(data as any)
+      setTable({ ...table, data: data as any });
+      form.setFieldsValue({
+          tinhTrang : 'all'
+      })
+    })()
   }, []);
   const handlePanigationChange = (current: any) => {
     setTable({ ...table, pagination: { ...table.pagination, current } });
@@ -139,7 +136,8 @@ const CheckingTicket = (props: Props) => {
     tinhTrang = tinhTrang === 'all' ? '': tinhTrang 
 
     let result  = tickets.filter((ticket : any)=>{
-      let isValidDate = ticket.dateUsed.isBefore(time.endDay) && ticket.dateUsed.isAfter(time.startDay)
+      let releaseDate = ticket.dateRelease as any
+      let isValidDate = moment(releaseDate.toDate()).isBefore(time.endDay) && moment(releaseDate.toDate()).isAfter(time.startDay)
       return ticket.status.includes(tinhTrang) && isValidDate && ticket.numberTicket.includes(key)
     })
 

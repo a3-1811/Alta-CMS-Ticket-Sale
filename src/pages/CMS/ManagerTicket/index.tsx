@@ -7,9 +7,9 @@ import FilterTicket from "./Filter";
 import './style.scss';
 import { DotsVerticalIcon } from "@heroicons/react/outline";
 import ChangeDateExpire from "./ChangeDateExpire";
+import TicketServices from "../../../db/services/ticket.services";
+import ITicket from "../../../db/types/ticket.type";
 type Props = {};
-
-
 
 const ManagerTicket = (props: Props) => {
   const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -26,6 +26,7 @@ const ManagerTicket = (props: Props) => {
   const [ticketsFilter, setTicketsFilter] = useState([])
   const [isOpen , setIsOpen ] = useState<boolean>(false)
   const [isOpenChangeExpire , setIsOpenChangeExpire ] = useState<boolean>(false)
+  const [ticketPopup, setTicketPopup] = useState<ITicket>()
   const columns = [
     {
       title: "STT",
@@ -83,16 +84,20 @@ const ManagerTicket = (props: Props) => {
       dataIndex: "dateUsed",
       width: "10%",
       render: (dateUsed:any)=>{
-        return <span>{dateUsed.format('DD/MM/YYYY')}</span>
+        if(dateUsed){
+          return <span>{moment(dateUsed.toDate()).format('DD/MM/YYYY')}</span>
+        }else{
+          return <span className="text-lg">-</span>
+        }
       },
       align: 'right' as AlignType
     },
     {
-      title: "Ngày xuất vé",
-      dataIndex: "dateRelease",
+      title: "Hạn sử dụng",
+      dataIndex: "dateExpire",
       width: "10%",
-      render: (dateRelease:any)=>{
-        return <span>{dateRelease.format('DD/MM/YYYY')}</span>
+      render: (dateExpire:any)=>{
+        return <span>{moment(dateExpire.toDate()).format('DD/MM/YYYY')}</span>
       },
       align: 'right' as AlignType
     },
@@ -101,7 +106,11 @@ const ManagerTicket = (props: Props) => {
       dataIndex: "gateCheckin",
       width: "10%",
       render: (number:any)=>{
-        return <span>Cổng {number}</span>
+        if(number){
+          return <span>Cổng {number}</span>
+        }else{
+          return <span className="text-lg">-</span>
+        }
       }
     },
     {
@@ -110,7 +119,7 @@ const ManagerTicket = (props: Props) => {
       width: "5%",
       render: (number:any,record:any)=>{
         if(record.status === 'pending'){
-          return <DotsVerticalIcon className="w-[18px] h-[36px] cursor-pointer" onClick={()=>{handlePopupExpire()}}/>
+          return <DotsVerticalIcon className="w-[18px] h-[36px] cursor-pointer" onClick={()=>{handlePopupExpire(record.id)}}/>
         }else{
           return ''
         }
@@ -118,27 +127,34 @@ const ManagerTicket = (props: Props) => {
     }
   ];
   useEffect(() => {
-    //Data demo
-    const data = [];
-    for (let index = 0; index < 50; index++) {
-      let random = Math.floor(Math.random() * (2 - 0 + 1) + 0);
-      let temp = {
-        key: index,
-        stt: index,
-        codeBooking: `ALT20210501`,
-        numberTicket: "123456789034",
-        nameEvent: "Hội chợ triển lãm tiêu dùng 2022",
-        status: random === 0 ? "used" : random === 1 ? "pending" : "expired",
-        dateUsed: moment(),
-        dateRelease: moment().set("day", moment().get("day") - 1),
-        gateCheckin: `${random + 1}`,
-      };
-      data.push(temp);
-    }
+   (async()=>{
+    // TicketServices.generateTickets(5)
+    let data = await TicketServices.getTickets()
+    data = data.map((item,index)=>{
+      return {
+        ...item,
+        key: item.id,
+        stt: index + 1
+      }
+    })
     setTickets(data as any)
     setTicketsFilter(data as any)
     setTable({ ...table, data: data as any });
+   })()       
   }, []);
+  const reset = async()=>{
+    let data = await TicketServices.getTickets()
+    data = data.map((item,index)=>{
+      return {
+        ...item,
+        key: item.id,
+        stt: index + 1
+      }
+    })
+    setTickets(data as any)
+    setTicketsFilter(data as any)
+    setTable({ ...table, data: data as any });
+  }
   const handlePanigationChange = (current: any) => {
     setTable({ ...table, pagination: { ...table.pagination, current } });
   };
@@ -151,14 +167,18 @@ const ManagerTicket = (props: Props) => {
     congCheckin = congCheckin.includes('all') ? '' : congCheckin
 
     let result  = tickets.filter((ticket : any)=>{
-      let isValidDate = ticket.dateUsed.isBefore(time.endDay) && ticket.dateUsed.isAfter(time.startDay)
-      return ticket.status.includes(tinhTrang) && isValidDate && ticket.numberTicket.includes(key)
+      let dateUsed = ticket.dateRelease as  any
+      if(dateUsed){
+        let isValidDate = moment(dateUsed.toDate()).isBefore(time.endDay) && moment(dateUsed.toDate()).isAfter(time.startDay)
+        return ticket.status.includes(tinhTrang) && isValidDate && ticket.numberTicket.includes(key)
+      }else{
+        return false
+      }
     })
-
     if(congCheckin.length > 0){
       if(!congCheckin.includes('all')){
         result = result.filter((ticket : any)=>{
-          return  congCheckin.includes(ticket.gateCheckin) && ticket.status.includes(tinhTrang)
+          return  congCheckin.findIndex((item : any)=> +item === ticket.gateCheckin) !== -1 && ticket.status.includes(tinhTrang)
         })
       }
     }
@@ -168,6 +188,7 @@ const ManagerTicket = (props: Props) => {
   const handlePopUp = ()=>{
     setIsOpen(true)
   }
+  // Input Search change
   const handleKeyWordChange = (e: any)=>{
     let value= e.target.value
     setKey(value)
@@ -175,16 +196,20 @@ const ManagerTicket = (props: Props) => {
     clearInterval(searchRef.current as any)
   }
   searchRef.current = setTimeout(() => {
-    console.log(ticketsFilter)
    let temp = ticketsFilter.filter((item : any)=>{
-    return item.numberTicket.includes(value)
+    return item.numberTicket.includes(value) || item.codeBooking.includes(value) 
    }
    )
     setTable({...table,data : temp as any})
     clearInterval(searchRef.current as any)
   }, 700);
   }
-  const handlePopupExpire = ()=>{
+  // Handle Popup display
+  const handlePopupExpire = (id :string)=>{
+    let index = tickets.findIndex((item:any)=> item.id === id)
+    if(index !== -1){
+      setTicketPopup(tickets[index])
+    }
     setIsOpenChangeExpire(true)
   }
   const handleStatusExpire= (status:boolean)=>{
@@ -244,7 +269,7 @@ const ManagerTicket = (props: Props) => {
       />
     </div>
     <FilterTicket isOpen={isOpen} handlePopup={handlePopupStatus} handleReceiveFilter={handleReceiveFilter} />
-    <ChangeDateExpire isOpen={isOpenChangeExpire} handlePopup={handleStatusExpire}/>
+    <ChangeDateExpire reset={reset} ticket={ticketPopup} isOpen={isOpenChangeExpire} handlePopup={handleStatusExpire}/>
     </>
   );
 };
