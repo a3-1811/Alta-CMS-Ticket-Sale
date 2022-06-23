@@ -18,6 +18,9 @@
     &.fill{
       @apply bg-yellow/1 text-white;
     }
+    @screen 2xl{
+      @apply text-sm px-3 py-1
+    }
   }
 }
 
@@ -117,6 +120,9 @@ h6 {
     &:first-child{
       text-align: center;
     }
+    @screen 2xl{
+      @apply text-[10px]
+    }
   }
   
   .ant-table-tbody > tr:nth-child(even){
@@ -125,6 +131,9 @@ h6 {
   .ant-table-tbody > tr > td{
     &:first-child{
       text-align: center;
+    }
+    @screen 2xl{
+      @apply text-[10px]
     }
   }
 
@@ -150,5 +159,10 @@ h6 {
   svg{
     height: 20px;
     width: 20px;
+  }
+}
+.ant-radio-wrapper span:nth-child(2){
+  @screen 2xl{
+    @apply text-xs;
   }
 }

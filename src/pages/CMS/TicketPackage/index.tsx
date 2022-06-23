@@ -4,6 +4,7 @@ import { AlignType } from 'rc-table/lib/interface';
 import moment from "moment-timezone";
 import React, { useEffect, useRef, useState } from "react";
 import './style.scss';
+import CsvDownloader from 'react-csv-downloader';
 import PackageTicketService from "../../../db/services/package.services";
 import IPackageTicket from "../../../db/types/package.type";
 import AddPackage from "./AddPackage";
@@ -27,6 +28,7 @@ const TicketPackage = (props: Props) => {
 
   const [isOpenAdd , setIsOpenAdd ] = useState<boolean>(false)
   const [isOpenUpdate , setIsOpenUpdate ] = useState<boolean>(false)
+  const [excelExport, setExcelExport] = useState<any>()
   const columns = [
     {
       title: "STT",
@@ -118,6 +120,40 @@ const TicketPackage = (props: Props) => {
       }
     }
   ];
+  const excelColumns = [
+    {
+      displayName: "STT",
+      id: "stt",
+    },
+    {
+      displayName: "Mã gói",
+      id: "codePackage",
+    },
+    {
+      displayName: "Tên gói vé",
+      id: "namePackage",
+    },
+    {
+      displayName: "Ngày áp dụng",
+      id: "dateApply",
+    },
+    {
+      displayName: "Ngày hết hạn",
+      id: "dateExpire",
+    },
+    {
+      displayName: "Giá vé (VNĐ/Vé)",
+      id: "singleTicketPrice",
+    },
+    {
+      displayName: "Giá Combo (VNĐ/Combo)",
+      id: "comboTicketPrice",
+    },
+    {
+      displayName: "Tình trạng",
+      id: "status",
+    },
+  ]
   useEffect(() => {
     //Data demo
    (async()=>{
@@ -131,6 +167,23 @@ const TicketPackage = (props: Props) => {
     setTickets(data as any)
     setTicketsFilter(data as any)
     setTable({ ...table, data: data as any });
+    let excelData = data.map((item)=>{
+      let price = item.comboTicketPrice?.price.toLocaleString('vi-VN', {style : 'currency', currency : 'VND'})
+      let expire = (item.dateExpire as any)
+      let apply = (item.dateApply as any)
+      return{
+        ...item,
+        dateExpire: `${moment(expire.toDate()).format('DD/MM/YYYY HH:mm:ss')}`,
+        dateApply: `${moment(apply.toDate()).format('DD/MM/YYYY HH:mm:ss')}`,
+        singleTicketPrice : item.singleTicketPrice.toLocaleString('vi-VN', {style : 'currency', currency : 'VND'}),
+        comboTicketPrice : item.comboTicketPrice ? `${price} / ${item.comboTicketPrice?.amount} vé` : '_',
+        status: item.status === "applying" ? "Đang áp dụng" : "Tắt" 
+      }
+    })
+    setExcelExport({
+      columns: excelColumns,
+      datas:[...excelData]
+    })
    })()
   }, []);
   const handlePanigationChange = (current: any) => {
@@ -188,9 +241,9 @@ const TicketPackage = (props: Props) => {
   return (
     <>
     <div className="manager-ticket">
-      <h1 className="text-4xl font-bold mb-8">Danh sách gói vé</h1>
+      <h1 className="text-4xl font-bold mb-8 2xl:text-lg">Danh sách gói vé</h1>
       {/* Controls */}
-      <div className="flex items-center mb-8">
+      <div className="flex items-center mb-8 lg:flex-col lg:items-center lg:gap-y-5">
         <div className="relative w-[360px]">
           <input
           onChange={handleKeyWordChange}
@@ -202,16 +255,25 @@ const TicketPackage = (props: Props) => {
             <SearchIcon className="text-xl font-light 3xl:text-sm 2xl:text-xs" />
           </label>
         </div>
-        <div className="flex gap-x-[10px] ml-auto">
-          <div className="btn cursor-pointer">Xuất file (.csv)</div>
-          <div className="btn fill cursor-pointer" onClick={handlePopupAdd}>
+        <div className="flex gap-x-[10px] ml-auto lg:ml-0">
+          <CsvDownloader 
+          filename="Bao_cao_goi_su_kien"
+          extension=".csv"
+          separator=";"
+          wrapColumnChar=""
+          columns={excelExport?.columns}
+          datas={excelExport?.datas} 
+          >
+            <div className="btn cursor-pointer 2xl:text-xs">Xuất file (.csv)</div>
+          </CsvDownloader>
+          <div className="btn fill cursor-pointer 2xl:text-xs" onClick={handlePopupAdd}>
             Thêm gói vé
           </div>
         </div>
       </div>
       {/* Table */}
       <Table
-        className="mt-4"
+        className="mt-4 xl:overflow-x-scroll"
         columns={columns}
         dataSource={table.data}
         pagination={{

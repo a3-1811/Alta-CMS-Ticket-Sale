@@ -59,10 +59,10 @@ const FilterTicket = ({ handlePopup, handleReceiveFilter, isOpen }: Props) => {
         footer={null}
         onCancel={()=>{handlePopup(false)}}
       >
-      <h2 className="text-center font-bold text-2xl mb-[27px]">Lọc vé</h2>
+      <h2 className="text-center font-bold text-2xl mb-[27px] 2xl:text-lg">Lọc vé</h2>
       <Form name="nest-messages" onFinish={onFinish} form={form}>
         <div className="w-full flex items-center mb-[20px]">
-          <div className="flex flex-col  gap-y-6 w-1/2 text-base font-semibold">
+          <div className="flex flex-col  gap-y-6 w-1/2 text-base font-semibold 2xl:text-sm 2xl:gap-y-3">
             Từ ngày
             <DatePicker
               name="day"
@@ -72,7 +72,7 @@ const FilterTicket = ({ handlePopup, handleReceiveFilter, isOpen }: Props) => {
               value={time.startDay}
             />
           </div>
-          <div className="flex flex-col  gap-y-6 w-1/2 text-base font-semibold">
+          <div className="flex flex-col  gap-y-6 w-1/2 text-base font-semibold 2xl:text-sm 2xl:gap-y-3">
             Đến ngày
             <DatePicker
               name="day"
@@ -88,7 +88,7 @@ const FilterTicket = ({ handlePopup, handleReceiveFilter, isOpen }: Props) => {
         <Form.Item name="tinhTrang" className="mb-[20px]">
           <Radio.Group className="w-full"
           >
-            <Row className="w-full">
+            <Row className="w-full ">
               <Col span={4}>
                 <Radio value="all">Tất cả</Radio>
               </Col>

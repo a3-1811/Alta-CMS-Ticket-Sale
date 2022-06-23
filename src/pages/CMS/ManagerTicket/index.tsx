@@ -9,6 +9,7 @@ import { DotsVerticalIcon } from "@heroicons/react/outline";
 import ChangeDateExpire from "./ChangeDateExpire";
 import TicketServices from "../../../db/services/ticket.services";
 import ITicket from "../../../db/types/ticket.type";
+import CsvDownload from "react-csv-downloader";
 type Props = {};
 
 const ManagerTicket = (props: Props) => {
@@ -23,6 +24,7 @@ const ManagerTicket = (props: Props) => {
     loading: false,
   });
   const [tickets, setTickets] = useState([])
+  const [excelExport, setExcelExport] = useState<any>()
   const [ticketsFilter, setTicketsFilter] = useState([])
   const [isOpen , setIsOpen ] = useState<boolean>(false)
   const [isOpenChangeExpire , setIsOpenChangeExpire ] = useState<boolean>(false)
@@ -90,7 +92,7 @@ const ManagerTicket = (props: Props) => {
           return <span className="text-lg">-</span>
         }
       },
-      align: 'right' as AlignType
+      align: 'right' as AlignType,
     },
     {
       title: "Hạn sử dụng",
@@ -99,7 +101,7 @@ const ManagerTicket = (props: Props) => {
       render: (dateExpire:any)=>{
         return <span>{moment(dateExpire.toDate()).format('DD/MM/YYYY')}</span>
       },
-      align: 'right' as AlignType
+      align: 'right' as AlignType,
     },
     {
       title: "Cổng check - in",
@@ -126,9 +128,43 @@ const ManagerTicket = (props: Props) => {
       }
     }
   ];
+  const excelColumns = [
+    {
+      displayName: "STT",
+      id: "stt",
+    },
+    {
+      displayName: "Booking code",
+      id: "codeBooking",
+    },
+    {
+      displayName: "Số vé",
+      id: "numberTicket",
+    },
+    {
+      displayName: "Tên sự kiện",
+      id: "nameEvent",
+    },
+    {
+      displayName: "Tình trạng sử dụng",
+      id: "status",
+    },
+    {
+      displayName: "Ngày sử dụng",
+      id: "dateUsed",
+    },
+    {
+      displayName: "Hạn sử dụng",
+      id: "dateExpire",
+    },
+    {
+      displayName: "Cổng check - in",
+      id: "gateCheckin",
+    }
+  ]
   useEffect(() => {
    (async()=>{
-    // TicketServices.generateTickets(5)
+    // TicketServices.generateTickets(10)
     let data = await TicketServices.getTickets()
     data = data.map((item,index)=>{
       return {
@@ -142,6 +178,28 @@ const ManagerTicket = (props: Props) => {
     setTable({ ...table, data: data as any });
    })()       
   }, []);
+  useEffect(()=>{
+    if(table){
+      let excelData = table.data.map((item:any)=>{
+        let usedDate = (item.dateUsed as any)
+        let expireDate = (item.dateExpire as any)
+
+        return{
+          ...item,
+          dateUsed: usedDate ? `${moment(usedDate.toDate()).format('DD/MM/YYYY')}` : '_',
+          dateExpire:`${moment(expireDate.toDate()).format('DD/MM/YYYY')}`,
+          gateCheckin : 'Cổng' + item.gateCheckin,
+          status: item.status === 'used' ? 'Đã sử dụng' : (
+            item.status === 'pending' ? 'Chưa sử dụng' : 'Hết hạn'
+          ) 
+        }
+      })
+      setExcelExport({
+        columns: excelColumns,
+        datas:[...excelData]
+      })
+    }
+  },[table])
   const reset = async()=>{
     let data = await TicketServices.getTickets()
     data = data.map((item,index)=>{
@@ -218,9 +276,9 @@ const ManagerTicket = (props: Props) => {
   return (
     <>
     <div className="manager-ticket">
-      <h1 className="text-4xl font-bold mb-8">Danh sách vé</h1>
+      <h1 className="text-4xl font-bold mb-8 2xl:text-xl">Danh sách vé</h1>
       {/* Controls */}
-      <div className="flex items-center mb-8">
+      <div className="flex items-center mb-8 lg:flex-col lg:items-center lg:gap-y-5">
         <div className="relative w-[360px]">
           <input
           onChange={handleKeyWordChange}
@@ -232,16 +290,25 @@ const ManagerTicket = (props: Props) => {
             <SearchIcon className="text-xl font-light 3xl:text-sm 2xl:text-xs" />
           </label>
         </div>
-        <div className="flex gap-x-[10px] ml-auto">
+        <div className="flex gap-x-[10px] ml-auto lg:ml-0">
           <div className="btn flex items-center cursor-pointer" onClick={handlePopUp}>
-            <FilterIcon className="w-[26px] mr-3" /> Lọc vé
+            <FilterIcon className="w-[26px] mr-3 2xl:w-3" /> Lọc vé
           </div>
+          <CsvDownload
+          filename="bao_cao_quan_li_ve"
+          extension=".csv"
+          separator=";"
+          wrapColumnChar=""
+          columns={excelExport?.columns}
+          datas={excelExport?.datas}
+          >
           <div className="btn cursor-pointer">Xuất file (.csv)</div>
+          </CsvDownload>
         </div>
       </div>
       {/* Table */}
       <Table
-        className="mt-4"
+        className="mt-4 2xl:overflow-x-scroll"
         columns={columns}
         dataSource={table.data}
         pagination={{

@@ -14,6 +14,6 @@ export default interface PackageTicket {
 	status: StatusPackage,
 	dateApply : Date,
   dateExpire: Date,
-  singleTicketPrice : Number,
+  singleTicketPrice : number,
   comboTicketPrice: ComboTicket | null
 }
